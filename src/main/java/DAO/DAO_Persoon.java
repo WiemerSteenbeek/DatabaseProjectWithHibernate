@@ -101,7 +101,7 @@ DAO_Persoon(Connection connection){
             DAO_Adres daoAdres = new DAO_Adres(connection);
             persoon.setAdres((Adres) (daoAdres.read(rSet.getInt(5))));
             DAO_Resultaat daoResultaat = new DAO_Resultaat(connection);
-            persoon.setResultaten(daoResultaat.findResultaten(id));
+            //persoon.setResultaten(daoResultaat.findResultaten(id));
 
             return persoon;
         } catch (Exception ex) {
@@ -128,7 +128,7 @@ DAO_Persoon(Connection connection){
             DAO_Adres daoAdres = new DAO_Adres(connection);
             persoon.setAdres((Adres) (daoAdres.read(rSet.getInt(4))));
             DAO_Resultaat daoResultaat = new DAO_Resultaat(connection);
-            persoon.setResultaten(daoResultaat.findResultaten(persoon.getId()));
+           // persoon.setResultaten(daoResultaat.findResultaten(persoon.getId()));
             persoon.setVoornaam(voorNaam);
             persoon.setAchternaam(achterNaam);
             return persoon;
