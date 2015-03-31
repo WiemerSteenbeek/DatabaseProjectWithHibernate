@@ -26,11 +26,11 @@ public class DAO_Resultaat implements DAOInterface {
         String modulenaam = ((Resultaat) obj).getModulenaam();
         float resultaat = ((Resultaat) obj).getResultaat();
         char voldoende = ((Resultaat) obj).isVoldoende() ? 'T' : 'F';
-        int persoonId = ((Resultaat) obj).getIdPersoon();
+        //int persoonId = ((Resultaat) obj).getIdPersoon();
         
-        if(modulenaam == null || resultaat == 0.0f || persoonId == 0){
+        /*if(modulenaam == null || resultaat == 0.0f || persoonId == 0){
             throw new IllegalArgumentException("Geen volledig resultaat!");
-        }
+        }*/
         
         else{
         if (connection == null) {
@@ -38,9 +38,9 @@ public class DAO_Resultaat implements DAOInterface {
         }
 
         Statement statement = connection.createStatement();
-        statement.executeUpdate("insert into Resultaat (modulenaam, resultaat, voldoende, persoonId) values ('"
+       /* statement.executeUpdate("insert into Resultaat (modulenaam, resultaat, voldoende, persoonId) values ('"
                 + modulenaam + "', " + resultaat + ", '" + voldoende
-                + "', " + persoonId + ")");
+                + "', " + persoonId + ")");*/
         }
     }
 
@@ -54,7 +54,7 @@ public class DAO_Resultaat implements DAOInterface {
         String modulenaam = ((Resultaat) obj).getModulenaam();
         float resultaat = ((Resultaat) obj).getResultaat();
         char voldoende = ((Resultaat) obj).isVoldoende() ? 'T' : 'F';
-        int persoonId = ((Resultaat) obj).getIdPersoon();
+       // int persoonId = ((Resultaat) obj).getIdPersoon();
         
         if(modulenaam == null || resultaat == 0.0f || persoonId == 0){
             throw new IllegalArgumentException("Geen volledig resultaat!");
@@ -64,8 +64,8 @@ public class DAO_Resultaat implements DAOInterface {
                 connection = DAO_Manager.initializeDB();
             }
             Statement statement = connection.createStatement();
-            statement.executeUpdate("update Resultaat set modulenaam = '" + modulenaam + "', resultaat = " + resultaat + ", voldoende = '" + voldoende + "', persoonId = "
-                    + persoonId + " where id = " + id);
+           /* statement.executeUpdate("update Resultaat set modulenaam = '" + modulenaam + "', resultaat = " + resultaat + ", voldoende = '" + voldoende + "', persoonId = "
+                    + persoonId + " where id = " + id);*/
         }
     }
 

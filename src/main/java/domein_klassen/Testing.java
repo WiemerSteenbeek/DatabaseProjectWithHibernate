@@ -3,6 +3,8 @@ package domein_klassen;
 
 
 
+import DAO.*;
+import java.sql.SQLException;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.boot.registry.StandardServiceRegistry;
@@ -66,10 +68,43 @@ public class Testing {
         session.save(persoon2);
         
         
+        Adres adres5 = new Adres();
+        adres5.setHuisnummer(101);
+        adres5.setPostcode("1235AB");
+        adres5.setStraatnaam("Laasdasdlal");
+        adres5.setWoonplaats("Hilvasdersum");
+        adres5.setToevoeging("b");
+        
+        Persoon persoon5 = new Persoon();
+        persoon5.setVoornaam("Blas");
+        persoon5.setAchternaam("Blas");
+        persoon5.setTussenvoegsel("van des");
+        persoon5.setGeboortedatum("11-11-1214");
+        persoon5.setAdres(adres5);
+      
+        
         session.getTransaction().commit();
         
         session.close();
+        try {
+
+            DAO_Manager daoManager = new DAO_Manager();
+            DAO_Manager.getSessionFactory();
+            DAO_Persoon daoPersoon = daoManager.getDAO_Persoon();
+            daoPersoon.create(persoon5);
+        } catch (SQLException ex) {
+            System.out.println("Gaat mis");
+        }
         
+        try{
+            DAO_Manager daoManager = new DAO_Manager();
+            DAO_Manager.getSessionFactory();
+            DAO_Persoon daoPersoon = daoManager.getDAO_Persoon();
+            System.out.println(daoPersoon.getPersoonId("Pietje", "Zon"));
+            
+        }catch (SQLException ex) {
+            System.out.println("Gaat iets anders mis");
+        }
         
     }
 }

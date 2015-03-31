@@ -4,57 +4,80 @@ import domein_klassen.*;
 
 import java.sql.*;
 import java.util.ArrayList;
+import org.hibernate.Query;
+import org.hibernate.Session;
 
-public class DAO_Persoon implements DAOInterface {
-private Connection connection;
-DAO_Persoon(Connection connection){
-    this.connection = connection;
-}
+public class DAO_Persoon{
+    private Session session;
 
-    @Override
-    public void create(POJO_Interface obj) throws SQLException {
-        if (!(obj instanceof Persoon)) {
-            throw new IllegalArgumentException("Geen Persoon object.");
-        }
-
-        String voorNaam = ((Persoon) obj).getVoornaam();
-        String achterNaam = ((Persoon) obj).getAchternaam();
-        String tussenVoegsel = ((Persoon) obj).getTussenvoegsel();
-        String geboorteDatum = ((Persoon) obj).getGeboortedatum();
-        Adres adres = ((Persoon) obj).getAdres();
+    DAO_Persoon() {
         
-        if (voorNaam == null || achterNaam == null || geboorteDatum == null) {
-            throw new IllegalArgumentException("Geen volledig persoon!");
-        }
-        else if (adres == null) {
-            throw new IllegalArgumentException("Adres is null");
-        }
-        else {
-            DAO_Manager manager = new DAO_Manager();
-
-            int adresId = manager.getDAO_Adres().getAdresId(adres.getPostcode(), adres.getHuisnummer());
-            if (adresId < 0) {
-                manager.getDAO_Adres().create(adres);
-                adresId = manager.getDAO_Adres().getAdresId(adres.getPostcode(), adres.getHuisnummer());
-            }
-            //int adresId = ((Persoon) obj).getIdAdres();
-
-            if (connection == null) {
-                connection = DAO_Manager.initializeDB();
-            }
-
-            Statement statement = connection.createStatement();
-            statement.executeUpdate("insert into Persoon (voorNaam, achterNaam, tussenvoegsel, geboortedatum, adresId) values ('"
-                    + voorNaam + "', '" + achterNaam + "', '" + tussenVoegsel
-                    + "', '" + geboorteDatum + "', '" + adresId + "')");
-
-        }
     }
+
+   
+    public void create(POJO_Interface obj) throws SQLException {
+        if ((obj instanceof Persoon)) {
+            session = DAO_Manager.getSessionFactory().openSession();
+            Persoon persoon = (Persoon) obj;
+
+            if (persoon.getVoornaam() == null || persoon.getAchternaam() == null || persoon.getGeboortedatum() == null) {
+                throw new IllegalArgumentException("Geen volledig persoon!");
+            } else if (persoon.getAdres() == null) {
+                throw new IllegalArgumentException("Adres is null");
+            } else {
+                Adres adres = persoon.getAdres();
+                session.beginTransaction();
+                session.save(adres);
+                session.save(persoon);
+                session.getTransaction().commit();
+                session.close();
+            }
+        } else {
+            throw new IllegalArgumentException("Geen Persoon object.");
+
+        }
+    } 
+
+        
+        
     
    
     
-    @Override
+  
     public void update(POJO_Interface obj) throws SQLException {
+
+        if ((obj instanceof Persoon)) {
+            session = DAO_Manager.getSessionFactory().openSession();
+            Persoon persoon = (Persoon) obj;
+
+            if (persoon.getVoornaam() == null || persoon.getAchternaam() == null || persoon.getGeboortedatum() == null) {
+                throw new IllegalArgumentException("Geen volledig persoon!");
+            } else if (persoon.getAdres() == null) {
+                throw new IllegalArgumentException("Adres is null");
+            } else {
+                session.beginTransaction();
+                int persoonsId = getPersoonId(persoon.getVoornaam(), persoon.getAchternaam());
+                
+                
+                
+                
+                session.update(persoon2);
+                
+                
+                session.getTransaction().commit();
+                session.close();
+            }
+        } else {
+            throw new IllegalArgumentException("Geen Persoon object.");
+
+        }
+    }
+        
+        
+         
+         
+         
+        /*
         if (!(obj instanceof Persoon)) {
             throw new IllegalArgumentException("Geen Persoon object.");
         }
@@ -138,21 +161,38 @@ DAO_Persoon(Connection connection){
         }
 
     }
-  
-    public int getPersoonId(String voorNaam, String achterNaam) throws SQLException {
-        if (connection == null) {
-            connection = DAO_Manager.initializeDB();
-        }
-        Statement statement = connection.createStatement();
+    */
 
-        ResultSet rSet = statement.executeQuery("select id from Persoon where voorNaam = '" + voorNaam + "' and achterNaam = '" + achterNaam + "'");
-        if (rSet.next()) {
-            return rSet.getInt(1);
+  
+    public int getPersoonId(String voornaam, String achternaam) throws SQLException {
+        
+        Persoon persoon = null;
+        String sql = "SELECT p FROM Persoon p WHERE p.voornaam = :voornaam AND p.achternaam = :achternaam";
+        Query query = DAO_Manager.getSessionFactory().openSession().createQuery(sql).setParameter("voornaam", voornaam).setParameter("achternaam", achternaam);
+        persoon = (Persoon) query.uniqueResult();
+
+        if (persoon != null) {
+            return persoon.getId();
+        } else {
+            return -1;
         }
-        return -1;
+        
+        
      
  }
-    
+    public Persoon getPersoon(String voornaam, String achternaam) throws SQLException {
+        Persoon persoon = null;
+        String sql = "SELECT p FROM Persoon p WHERE p.voornaam = :voornaam AND p.achternaam = :achternaam";
+        Query query = DAO_Manager.getSessionFactory().openSession().createQuery(sql).setParameter("voornaam", voornaam).setParameter("achternaam", achternaam);
+        persoon = (Persoon) query.uniqueResult();
+
+        if (persoon != null) {
+            return persoon;
+        } else {
+            return null;
+        }
+    }
+    /*
     
     public ArrayList<Persoon> getAll() throws SQLException {
         ArrayList<Persoon> personen = new ArrayList<Persoon>();
@@ -195,4 +235,5 @@ DAO_Persoon(Connection connection){
         }
 
     }
-}
+*/
+    }

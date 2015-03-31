@@ -1,60 +1,58 @@
-
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
 package DAO;
 
-import java.sql.DriverManager;
-import java.sql.*;
+import org.hibernate.*;
+import org.hibernate.boot.registry.StandardServiceRegistry;
+import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
+import org.hibernate.cfg.Configuration;
 
 public class DAO_Manager {
-    private static Connection connection;
+
     private DAO_Persoon daoPersoon;
     private DAO_Adres daoAdres;
     private DAO_Resultaat daoResultaat;
-    
-   static Connection initializeDB(){
-       
-        try{
-            if (connection == null) {
-            Class.forName("com.mysql.jdbc.Driver");
-            System.out.println("Driver loaded");
-            
-            connection = DriverManager.getConnection("jdbc:mysql://localhost/studenten", "root", "");
-            System.out.println("Database connected");
-            }
-            return connection;
-        }
-        catch(Exception ex){
-            ex.printStackTrace();
-            return null;
-        }
-    }
-   
-    public void closeConnection() throws SQLException {
-       if (connection != null) {
+    private static SessionFactory sessionFactory;
+    private static StandardServiceRegistry serviceRegistry;
 
-            connection.close();
-            connection = null;
+    public static SessionFactory createSessionFactory() {
+        Configuration configuration = new Configuration();
+        configuration.configure();
+        serviceRegistry = new StandardServiceRegistryBuilder().applySettings(
+                configuration.getProperties()).build();
+        sessionFactory = configuration.buildSessionFactory(serviceRegistry);
+        return sessionFactory;
+    }
+
+    public static SessionFactory getSessionFactory() {
+        if (sessionFactory != null) {
+            return sessionFactory;
+        } else {
+            Configuration configuration = new Configuration();
+            configuration.configure();
+            serviceRegistry = new StandardServiceRegistryBuilder().applySettings(
+                    configuration.getProperties()).build();
+            sessionFactory = configuration.buildSessionFactory(serviceRegistry);
+            return sessionFactory;
         }
+
     }
-   
-   
-   public DAO_Persoon getDAO_Persoon(){
-    if(this.daoPersoon == null){
-      this.daoPersoon = new DAO_Persoon(this.connection);
+
+    public DAO_Persoon getDAO_Persoon() {
+        daoPersoon = new DAO_Persoon();
+        return daoPersoon;
     }
-    return this.daoPersoon;
-   }
-   
-   public DAO_Adres getDAO_Adres(){
-       if(this.daoAdres == null){
-           this.daoAdres = new DAO_Adres(this.connection);
-       }
-       return daoAdres;
-   }
-   
-   public DAO_Resultaat getDAO_Resultaat(){
-       if(this.daoResultaat == null){
-           this.daoResultaat = new DAO_Resultaat(this.connection);
-       }
-       return daoResultaat;
-   }
+
+    public DAO_Adres getDAO_Adres() {
+        daoAdres = new DAO_Adres();
+        return daoAdres;
+    }
+
+    public DAO_Resultaat getDAO_Resultaat() {
+        daoResultaat = new DAO_Resultaat();
+        return daoResultaat;
+    }
 }
