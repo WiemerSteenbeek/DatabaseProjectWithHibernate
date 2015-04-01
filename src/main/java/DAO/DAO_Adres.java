@@ -174,7 +174,7 @@ public class DAO_Adres implements DAOInterface {
     }
 
     @Override
-    public void delete(Object obj) throws SQLException {
+    public void delete(Object obj) throws Exception {
         Session session = DAO_Manager.getSession();
         session.beginTransaction();
         try {

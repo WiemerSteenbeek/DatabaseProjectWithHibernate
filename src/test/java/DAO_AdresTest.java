@@ -152,7 +152,7 @@ public class DAO_AdresTest {
     }
     
     @Test
-    public void testDelete() throws SQLException {
+    public void testDelete() throws Exception {
         Adres adres = new Adres();
 
         adres.setStraatnaam("Bloemensingel");
