@@ -30,7 +30,7 @@ public class Testing {
         Resultaat resultaat = new Resultaat();
         resultaat.setModulenaam("OCAB");
         resultaat.setResultaat(9.5f);
-        
+        persoon.getResultaten().add(resultaat);
         
         Adres adres = new Adres();
         adres.setHuisnummer(101);
@@ -44,12 +44,15 @@ public class Testing {
         
         DAO_Manager daoManager = new DAO_Manager();
         try {
-            Persoon persoonRead = (Persoon) daoManager.getDAO_Persoon().getPersoon("keessie", "Blablablaasdasdasdasd");
-            System.out.println(persoonRead);
-            persoonRead.setAchternaam("Blablablaasdasdasdasd");
-            daoManager.getDAO_Persoon().delete(persoonRead);
-            
-            System.out.println(daoManager.getDAO_Persoon().getAll().get(0).getAdres().getStraatnaam());
+            DAO_Persoon daoPersoon = daoManager.getDAO_Persoon();
+            daoPersoon.create(persoon);
+            DAO_Resultaat daoResultaat = daoManager.getDAO_Resultaat();
+ 
+            Resultaat readResultaat = daoResultaat.getResultaat(persoon.getId(), "OCAB");
+            readResultaat.setModulenaam("ACAB");
+            daoResultaat.update(readResultaat);
+            System.out.println(daoResultaat.getAll());
+            daoResultaat.delete(readResultaat);
         } 
         catch (Exception ex){
             ex.printStackTrace();

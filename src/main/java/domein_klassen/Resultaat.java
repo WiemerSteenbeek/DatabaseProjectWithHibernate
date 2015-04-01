@@ -75,7 +75,7 @@ public class Resultaat implements POJO_Interface {
     }
     
     public String toString(){
-        return("Resultaat: " + modulenaam + ", " + resultaat);
+        return("Resultaat: " + modulenaam + ", " + resultaat + " " + voldoende);
     }
     
 }

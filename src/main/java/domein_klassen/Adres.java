@@ -75,5 +75,9 @@ public class Adres implements POJO_Interface, Serializable {
     public void setWoonplaats(String woonplaats) {
         this.woonplaats = woonplaats;
     }
+    
+    public String toString(){
+        return(straatnaam + " " + huisnummer + " " + postcode + " " + woonplaats );
+    }
 
 }

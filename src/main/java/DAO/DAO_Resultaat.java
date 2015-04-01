@@ -22,39 +22,53 @@ public class DAO_Resultaat implements DAOInterface {
     @Override
     public void create(POJO_Interface obj) throws SQLException {
         Session session = DAO_Manager.getSession();
-
-        try {
-            session.beginTransaction();
-            if ((obj instanceof Resultaat)) {
-                session.save((Resultaat) obj);
+        session.beginTransaction();
+        if (obj instanceof Resultaat) {
+            Resultaat resultaat = (Resultaat) obj;
+            if (resultaat.getModulenaam() == null || resultaat.getResultaat() <= 0) {
+                throw new IllegalArgumentException("Geen volledig resultaat!");
+            } else {
+                try {
+                    session.save(resultaat);
+                } finally {
+                    DAO_Manager.commitAndCloseSession(session);
+                }
             }
-        } finally {
-            DAO_Manager.commitAndCloseSession(session);
+        } else {
+            throw new IllegalArgumentException("Geen Resultaat object.");
         }
     }
 
     @Override
     public void update(POJO_Interface obj) throws SQLException {
         Session session = DAO_Manager.getSession();
+        session.beginTransaction();
+        if (obj instanceof Resultaat) {
+            Resultaat resultaat = (Resultaat) obj;
+            if (resultaat.getModulenaam() == null || resultaat.getResultaat() <= 0) {
+                throw new IllegalArgumentException("Geen volledig resultaat!");
+            } else {
+                try {
 
-        try {
-            session.beginTransaction();
+                    session.merge(resultaat);
 
-            if ((obj instanceof Resultaat)) {
-                session.merge((Resultaat) obj);
+                } finally {
+                    DAO_Manager.commitAndCloseSession(session);
+                }
             }
-        } finally {
-            DAO_Manager.commitAndCloseSession(session);
+        } else {
+            throw new IllegalArgumentException("Geen Resultaat object.");
         }
     }
 
     @Override
     public POJO_Interface read(int id) throws SQLException {
         Session session = DAO_Manager.getSession();
-
+        session.beginTransaction();
         try {
-            session.beginTransaction();
             return (Resultaat) session.get(Resultaat.class, id);
+        } catch (NullPointerException ex) {
+            return null;
         } finally {
             DAO_Manager.commitAndCloseSession(session);
         }
@@ -63,18 +77,23 @@ public class DAO_Resultaat implements DAOInterface {
     public int getResultaatId(int persoonId, String moduleNaam) throws SQLException {
 
         Session session = DAO_Manager.getSession();
-
+        session.beginTransaction();
         try {
-            session.beginTransaction();
-            String sql = "SELECT r FROM Resultaat r WHERE r.persoonId = :persoonId AND r.moduleNaam = :moduleNaam";
-            Query query = session.createQuery(sql).setParameter("persoonId", persoonId).setParameter("moduleNaam", moduleNaam);
-            Resultaat resultaat = (Resultaat) query.uniqueResult();
 
-            if (resultaat != null) {
-                return resultaat.getId();
-            } else {
-                return -1;
+            String sql = "SELECT r FROM Resultaat r WHERE r.persoonid = :persoonid AND r.modulenaam = :modulenaam";
+            Query query = session.createQuery(sql).setParameter("persoonid", persoonId).setParameter("modulenaam", moduleNaam);
+            try {
+                Resultaat resultaat = (Resultaat) query.uniqueResult();
+                if (resultaat != null) {
+                    return resultaat.getId();
+                } else {
+                    return -1;
+                }
+            } catch (Exception ex) {
+                List<Resultaat> list = query.list();
+                return list.get(list.size() - 1).getId();
             }
+
         } finally {
             DAO_Manager.commitAndCloseSession(session);
         }
@@ -82,18 +101,23 @@ public class DAO_Resultaat implements DAOInterface {
 
     public Resultaat getResultaat(int persoonId, String moduleNaam) throws SQLException {
 
+        Resultaat resultaat;
         Session session = DAO_Manager.getSession();
-
+        session.beginTransaction();
         try {
-            session.beginTransaction();
-            String sql = "SELECT r FROM Resultaat r WHERE r.persoonId = :persoonId AND r.moduleNaam = :moduleNaam";
-            Query query = session.createQuery(sql).setParameter("persoonId", persoonId).setParameter("moduleNaam", moduleNaam);
-            Resultaat resultaat = (Resultaat) query.uniqueResult();
+             String sql = "SELECT r FROM Resultaat r WHERE r.persoonid = :persoonid AND r.modulenaam = :modulenaam";
+            Query query = session.createQuery(sql).setParameter("persoonid", persoonId).setParameter("modulenaam", moduleNaam);
+            try {
+                resultaat = (Resultaat) query.uniqueResult();
 
-            if (resultaat != null) {
-                return resultaat;
-            } else {
-                return null;
+                if (resultaat != null) {
+                    return resultaat;
+                } else {
+                    return null;
+                }
+            } catch (Exception ex) {
+                // Zou in principe niet moeten kunnen voorkomen (quick hack)
+                return ((Resultaat) query.list().get(query.list().size() - 1));
             }
         } finally {
             DAO_Manager.commitAndCloseSession(session);
@@ -101,11 +125,12 @@ public class DAO_Resultaat implements DAOInterface {
     }
 
     @Override
-    public void delete(Object resultaat) throws Exception {
+    public void delete(Object obj) throws Exception {
         Session session = DAO_Manager.getSession();
+        session.beginTransaction();
         try {
-            if (resultaat instanceof Resultaat) {
-                session.beginTransaction();
+            if (obj instanceof Resultaat) {
+                Resultaat resultaat = (Resultaat) obj;
                 session.delete(resultaat);
             }
         } finally {
@@ -114,53 +139,34 @@ public class DAO_Resultaat implements DAOInterface {
     }
 
     public List<Resultaat> findResultaten(int persoonId) throws SQLException {
-        
+
         Session session = DAO_Manager.getSession();
 
         try {
             session.beginTransaction();
             Criteria crit = session.createCriteria(Resultaat.class)
                     .add(Restrictions.eq("persoonid", persoonId));
-            
+
             List<Resultaat> resultaten = crit.list();
 
             return resultaten;
         } finally {
             DAO_Manager.commitAndCloseSession(session);
         }
-        
-        /*
-        if (connection == null) {
-            connection = DAO_Manager.initializeDB();
-        }
-        Statement statement = connection.createStatement();
-
-        ResultSet rSet = statement.executeQuery("select id, modulenaam, resultaat, voldoende from Resultaat where persoonId = " + idPersoon);
-
-        //ArrayList<Resultaat> list = new ArrayList<>();
-        Resultaat[] lijst = new Resultaat[20];
-        int i = 0;
-        while (rSet.next()) {
-            Resultaat resultaat = new Resultaat();
-            resultaat.setId(rSet.getInt(1));
-            resultaat.setModulenaam(rSet.getString(2));
-            resultaat.setResultaat(rSet.getFloat(3));
-            String voldoende = rSet.getString(4); // We hadden de voldoende toch als eeen char weergegeven in de database? Ik kan de getChar methode niet vinden 
-            if (voldoende.equals("T")) {
-                resultaat.setVoldoende(true);
-            } else {
-                resultaat.setVoldoende(false);
-            }
-            resultaat.setIdPersoon(idPersoon);
-            lijst[i] = resultaat;
-            i++;
-            //list.add(resultaat);
-        }
-
-//        Resultaat[] resultaten = (Resultaat[])(list.toArray());
-//        return resultaten;
-        return lijst;
-*/
     }
-                
+    
+    public List<Resultaat> getAll() throws SQLException {
+        List<Resultaat> resultaten = new ArrayList<Resultaat>();
+        Session session = DAO_Manager.getSession();
+        session.beginTransaction();
+        try {
+
+            Criteria crit = session.createCriteria(Resultaat.class);
+            resultaten = crit.list();
+        } finally {
+            DAO_Manager.commitAndCloseSession(session);
+            return resultaten;
+        }
+    }
+
 }
