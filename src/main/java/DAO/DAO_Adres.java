@@ -3,148 +3,110 @@ package DAO;
 import domein_klassen.*;
 
 import java.sql.*;
-
-import DAO.DAO_Manager;
+import java.util.ArrayList;
+import org.hibernate.Query;
+import org.hibernate.Session;
+import org.hibernate.metamodel.domain.Component;
 
 public class DAO_Adres implements DAOInterface {
 
-    private Connection connection;
+    private Session session;
 
-    DAO_Adres(Connection connection) {
-        this.connection = connection;
+    DAO_Adres() {
+
     }
 
     @Override
     public void create(POJO_Interface obj) throws SQLException {
-        if (!(obj instanceof Adres)) {
-            throw new IllegalArgumentException("Geen Adres object.");
-        }
+        Session session = DAO_Manager.getSession();
 
-        String straatnaam = ((Adres) obj).getStraatnaam();
-        int huisnummer = ((Adres) obj).getHuisnummer();
-        String toevoeging = ((Adres) obj).getToevoeging();
-        String postcode = ((Adres) obj).getPostcode();
-        String woonplaats = ((Adres) obj).getWoonplaats();
-        
-        if(straatnaam == null || huisnummer == 0 || postcode == null || woonplaats == null){
-            throw new IllegalArgumentException("Geen volledig adres!");
-            
-        }
-        else{
-            if (connection == null) {
-                connection = DAO_Manager.initializeDB();
+        try {
+            session.beginTransaction();
+            if ((obj instanceof Adres)) {
+                session.save((Adres) obj);
             }
-
-            Statement statement = connection.createStatement();
-            statement.executeUpdate("insert into Adres (straatnaam, huisnummer, toevoeging, postcode, woonplaats) values ('"
-                    + straatnaam + "', '" + huisnummer + "', '" + toevoeging
-                    + "', '" + postcode + "', '" + woonplaats + "')");
+        } finally {
+            DAO_Manager.commitAndCloseSession(session);
         }
     }
 
     @Override
     public void update(POJO_Interface obj) throws SQLException {
-        if (!(obj instanceof Adres)) {
-            throw new IllegalArgumentException("Geen Adres object.");
-        }
+        Session session = DAO_Manager.getSession();
 
-        int id = ((Adres) obj).getId();
-        String straatnaam = ((Adres) obj).getStraatnaam();
-        int huisnummer = ((Adres) obj).getHuisnummer();
-        String toevoeging = ((Adres) obj).getToevoeging();
-        String postcode = ((Adres) obj).getPostcode();
-        String woonplaats = ((Adres) obj).getWoonplaats();
+        try {
+            session.beginTransaction();
 
-        if(straatnaam == null || huisnummer == 0 || postcode == null || woonplaats == null){
-            throw new IllegalArgumentException("Geen volledig adres!");
-            
-        }
-        else{
-            if (connection == null) {
-                connection = DAO_Manager.initializeDB();
+            if ((obj instanceof Adres)) {
+                session.merge((Adres) obj);
             }
-            Statement statement = connection.createStatement();
-            statement.executeUpdate("update Adres set straatnaam = '" + straatnaam + "', huisnummer = '" + huisnummer + "', toevoeging = '" + toevoeging + "', postcode = '"
-                    + postcode + "', woonplaats = '" + woonplaats + "' where id = " + id);
+        } finally {
+            DAO_Manager.commitAndCloseSession(session);
         }
     }
 
     @Override
     public POJO_Interface read(int id) throws SQLException {
-        if (connection == null) {
-            connection = DAO_Manager.initializeDB();
-        }
-        Statement statement = connection.createStatement();
+        Session session = DAO_Manager.getSession();
 
         try {
-            ResultSet rSet = statement.executeQuery("select straatnaam, huisnummer, toevoeging, postcode, woonplaats from Adres where id = " + id);
-
-            Adres adres = new Adres();
-            rSet.next();
-            adres.setStraatnaam(rSet.getString(1));
-            adres.setHuisnummer(rSet.getInt(2));
-            adres.setToevoeging(rSet.getString(3));
-            adres.setPostcode(rSet.getString(4));
-            adres.setWoonplaats(rSet.getString(5));
-            adres.setId(id); // toegevoegd
-
-            return adres;
-        } catch (Exception ex) {
-            return null;
+            session.beginTransaction();
+            return (Adres) session.get(Adres.class, id);
+        } finally {
+            DAO_Manager.commitAndCloseSession(session);
         }
-
     }
 
     public int getAdresId(String postcode, int huisnummer) throws SQLException {
-        if (connection == null) {
-            connection = DAO_Manager.initializeDB();
-        }
-        Statement statement = connection.createStatement();
 
-        ResultSet rSet = statement
-                .executeQuery("select id from Adres where postcode = '"
-                        + postcode + "' and huisnummer = " + huisnummer);
+        Session session = DAO_Manager.getSession();
 
-        if (rSet.next()) {
-            return rSet.getInt(1);
+        try {
+            session.beginTransaction();
+            String sql = "SELECT a FROM Adres p WHERE p.postcode = :postcode AND a.huisnummer = :huisnummer";
+            Query query = session.createQuery(sql).setParameter("postcode", postcode).setParameter("huisnummer", huisnummer);
+            Adres adres = (Adres) query.uniqueResult();
+
+            if (adres != null) {
+                return adres.getId();
+            } else {
+                return -1;
+            }
+        } finally {
+            DAO_Manager.commitAndCloseSession(session);
         }
-        return -1;
     }
 
+    public Adres getAdres(String postcode, int huisnummer) throws SQLException {
 
-    public int getAdresId(String postcode, int huisnummer, String toevoeging) throws SQLException {
+        Session session = DAO_Manager.getSession();
 
-        if (connection == null) {
-            connection = DAO_Manager.initializeDB();
+        try {
+            session.beginTransaction();
+            String sql = "SELECT a FROM Adres p WHERE p.postcode = :postcode AND a.huisnummer = :huisnummer";
+            Query query = session.createQuery(sql).setParameter("postcode", postcode).setParameter("huisnummer", huisnummer);
+            Adres adres = (Adres) query.uniqueResult();
+
+            if (adres != null) {
+                return adres;
+            } else {
+                return null;
+            }
+        } finally {
+            DAO_Manager.commitAndCloseSession(session);
         }
-        Statement statement = connection.createStatement();
-
-        ResultSet rSet = statement
-                .executeQuery("select id from Adres where postcode = '"
-                        + postcode + "' and huisnummer = " + huisnummer + " and toevoeging = '" + toevoeging + "'");
-
-        if (rSet.next()) {
-            return rSet.getInt(1);
-        }
-        return -1;
-
     }
 
     @Override
-    public void delete(int id) throws SQLException {
-
-        if (connection == null) {
-            connection = DAO_Manager.initializeDB();
-        }
-        Statement statement = connection.createStatement();
-        try{
-            Adres adres = (Adres)read(id);
-            adres.getHuisnummer();
-            statement.executeUpdate("delete from Adres where id = " + id);
-        }
-        catch(Exception ex){
-            throw new IllegalArgumentException("Geen adres gevonden op dit ID");
+    public void delete(Object adres) throws Exception {
+        Session session = DAO_Manager.getSession();
+        try {
+            if (adres instanceof Adres) {
+                session.beginTransaction();
+                session.delete(adres);
+            }
+        } finally {
+            DAO_Manager.commitAndCloseSession(session);
         }
     }
-
 }

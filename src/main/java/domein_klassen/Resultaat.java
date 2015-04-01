@@ -4,6 +4,9 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToOne;
 
 @Entity
 public class Resultaat implements POJO_Interface {
@@ -12,7 +15,8 @@ public class Resultaat implements POJO_Interface {
     private String modulenaam;
     private float resultaat;
     private boolean voldoende;
-    
+    @JoinColumn
+    private Integer persoonid;
 
    /* @Override
     public boolean equals(Object resultaat2) {
@@ -61,13 +65,17 @@ public class Resultaat implements POJO_Interface {
     public void setVoldoende(boolean voldoende) {
         this.voldoende = voldoende;
     }
-/*
+
     public Integer getIdPersoon() {
-        return idPersoon;
+        return persoonid;
     }
 
     public void setIdPersoon(int idPersoon) {
-        this.idPersoon = idPersoon;
+        this.persoonid = idPersoon;
     }
-    */
+    
+    public String toString(){
+        return("Resultaat: " + modulenaam + ", " + resultaat);
+    }
+    
 }

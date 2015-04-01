@@ -8,10 +8,8 @@
     <property name="hibernate.connection.username">root</property>
     <property name="show_sql">true</property>
     <property name="hbm2ddl.auto">update</property>
-    
-     <mapping class="domein_klassen.Persoon"/>
-     <mapping class="domein_klassen.Adres"/>
-     <mapping class="domein_klassen.Resultaat"/>
-     
+    <mapping class="domein_klassen.Persoon" />
+    <mapping class="domein_klassen.Adres"/>
+    <mapping class="domein_klassen.Resultaat"/>
   </session-factory>
 </hibernate-configuration>

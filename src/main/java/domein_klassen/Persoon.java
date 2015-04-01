@@ -13,10 +13,10 @@ public class Persoon implements POJO_Interface {
     private String achternaam;
     private String tussenvoegsel;
     private String geboortedatum;
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne() @JoinColumn
     private Adres adres;
 
-    @OneToMany(fetch = FetchType.LAZY)
+    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL) @JoinColumn(name = "persoonid")
     private List<Resultaat> resultaten = new ArrayList();
 
     public int getId() {
@@ -74,6 +74,11 @@ public class Persoon implements POJO_Interface {
     public void setResultaten(List<Resultaat> resultaten) {
         this.resultaten = resultaten;
     }
+    
+    public String toString(){
+        return(voornaam + " " + achternaam);
+    }
+    
     /*
      public int getIdAdres() {
      return idAdres;

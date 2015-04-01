@@ -38,7 +38,30 @@ public class DAO_Manager {
             sessionFactory = configuration.buildSessionFactory(serviceRegistry);
             return sessionFactory;
         }
+    }
 
+    public static Session getSession() {
+        Session session;
+        
+        if (sessionFactory != null) {
+            session = sessionFactory.openSession();
+            return session;
+        } else {
+            Configuration configuration = new Configuration();
+            configuration.configure();
+            serviceRegistry = new StandardServiceRegistryBuilder().applySettings(
+                    configuration.getProperties()).build();
+            sessionFactory = configuration.buildSessionFactory(serviceRegistry);
+            session = sessionFactory.openSession();
+            return session;
+        }
+    }
+
+    public static void commitAndCloseSession(Session session) {
+        if(session.isOpen()){
+            session.getTransaction().commit();
+            session.close();
+        }
     }
 
     public DAO_Persoon getDAO_Persoon() {

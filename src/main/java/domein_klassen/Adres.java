@@ -1,6 +1,7 @@
 package domein_klassen;
 
 import java.io.Serializable;
+import java.util.Set;
 import javax.persistence.*;
 
 @Entity
@@ -12,6 +13,9 @@ public class Adres implements POJO_Interface, Serializable {
     private String toevoeging;
     private String postcode;
     private String woonplaats;
+    
+    @OneToMany(fetch = FetchType.LAZY) @JoinColumn
+    private Set <Persoon> Personen;
 
     @Override
     public boolean equals(Object adres2) {
