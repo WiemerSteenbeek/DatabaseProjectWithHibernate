@@ -34,7 +34,7 @@ public class DAO_Adres implements DAOInterface {
                 }
             }
         } else {
-            throw new IllegalArgumentException("Geen Persoon object.");
+            throw new IllegalArgumentException("Geen Adres object.");
         }
     }
 
@@ -45,7 +45,7 @@ public class DAO_Adres implements DAOInterface {
         if (obj instanceof Adres) {
             Adres adres = (Adres) obj;
             if (adres.getPostcode() == null || adres.getHuisnummer() == 0) {
-                throw new IllegalArgumentException("Geen volledig persoon!");
+                throw new IllegalArgumentException("Geen volledig adres!");
             } else {
                 try {
 
@@ -56,7 +56,7 @@ public class DAO_Adres implements DAOInterface {
                 }
             }
         } else {
-            throw new IllegalArgumentException("Geen Persoon object.");
+            throw new IllegalArgumentException("Geen Adres object.");
         }
     }
 
@@ -98,8 +98,58 @@ public class DAO_Adres implements DAOInterface {
         }
 
     }
+    
+    public int getAdresId(String postcode, int huisnummer, String toevoeging) throws SQLException {
 
-    public Adres getAdres(String postcode, int huisnummer) throws SQLException {
+        Session session = DAO_Manager.getSession();
+        session.beginTransaction();
+        try {
+
+            String sql = "SELECT a FROM Adres a WHERE a.postcode = :postcode AND a.huisnummer = :huisnummer AND a.toevoeging = :toevoeging";
+            Query query = session.createQuery(sql).setParameter("postcode", postcode).setParameter("huisnummer", huisnummer).setParameter("toevoeging", toevoeging);
+            try {
+                Adres adres = (Adres) query.uniqueResult();
+                if (adres != null) {
+                    return adres.getId();
+                } else {
+                    return -1;
+                }
+            } catch (Exception ex) {
+                List<Adres> list = query.list();
+                return list.get(list.size() - 1).getId();
+            }
+
+        } finally {
+            DAO_Manager.commitAndCloseSession(session);
+        }
+
+    }
+
+    public Adres getAdres(String postcode, int huisnummer, String toevoeging) throws SQLException {
+        Adres adres;
+        Session session = DAO_Manager.getSession();
+        session.beginTransaction();
+        try {
+            String sql = "SELECT a FROM Adres a WHERE a.postcode = :postcode AND a.huisnummer = :huisnummer AND a.toevoeging = :toevoeging";
+            Query query = session.createQuery(sql).setParameter("postcode", postcode).setParameter("huisnummer", huisnummer).setParameter("toevoeging", toevoeging);
+            try {
+                adres = (Adres) query.uniqueResult();
+
+                if (adres != null) {
+                    return adres;
+                } else {
+                    return null;
+                }
+            } catch (Exception ex) {
+                // Zou in principe niet moeten kunnen voorkomen (quick hack)
+                return ((Adres) query.list().get(query.list().size() - 1));
+            }
+        } finally {
+            DAO_Manager.commitAndCloseSession(session);
+        }
+    }
+    
+        public Adres getAdres(String postcode, int huisnummer) throws SQLException {
         Adres adres;
         Session session = DAO_Manager.getSession();
         session.beginTransaction();
@@ -124,7 +174,7 @@ public class DAO_Adres implements DAOInterface {
     }
 
     @Override
-    public void delete(Object obj) throws Exception {
+    public void delete(Object obj) throws SQLException {
         Session session = DAO_Manager.getSession();
         session.beginTransaction();
         try {
